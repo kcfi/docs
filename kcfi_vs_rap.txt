@@ -8,14 +8,14 @@ required us to explain them during the talk.
 
 Both kCFI and RAP are Control-Flow Integrity (CFI) solutions that aim at
 protecting the Linux kernel. Both are based on the original CFI proposal
-suggested by Abadi et al. [1], which consists of instrumenting indirect branch
-instructions with inline checks and valid destinations with hashes. Both
-schemes use a similar method for validating indirect calls, which is through
-pairing prototypes between function pointers and called functions. (Note that
-this heuristic is also on Abadi's original proposal.) For checking returns, the
-approach considers as valid those destinations which are consecutive to a
-'call' instruction (i.e., the instruction right after a respective direct or
-indirect call).
+suggested by Abadi et al. [1] (note in section "Considerations"), which consists
+of instrumenting all indirect branch instructions with inline checks and valid
+destinations with hashes. Both schemes use a similar method for validating
+indirect calls, which is through pairing prototypes between function pointers
+and called functions. (Note that this heuristic is also on Abadi's original
+proposal.) For checking returns, the approach considers as valid those
+destinations which are consecutive to a 'call' instruction (i.e., the
+instruction right after a respective direct or indirect call).
 
 Because many different functions can be invoked through a function pointer, and
 only one hash can be placed on the return site, all these functions must be
@@ -349,8 +349,8 @@ for improvement either by refining the CFG through the explained techniques or
 through using lightweight 'nop'-encoded tags.
 
 The fact that RAP implements other optimizations (such as type aliasing [3]) to
-refine the enforced CFG shows that they agree on the fact that pruning edges
-is critical to achieving better security guarantees. In fact, when it comes to
+refine the enforced CFG shows that they agree on the idea that pruning edges is
+critical to achieving better security guarantees. In fact, when it comes to
 protecting returns, refining the CFG is an important measure for preventing
 loop injections [2].
 
@@ -371,6 +371,13 @@ The kCFI dudes
 
 ** Considerations:
 
+After the first release of this document, a PaX contributor pointed out a
+document dated to 2003 [4] in which the PaX developers describe a return
+protection mechanism that resembles what was later suggested by Abadi et al. in
+2005. Yet, for protecting forward-edges, this same document suggests a different
+approach, based on making function pointers non-writable. Currently, both kCFI
+and RAP use the forward-edge scheme described in Abadi's paper.
+
 The transitiveness analysis performed on RAP and kCFI attempts to describe how
 CGD works, and show that RAP does not implement nor applies it. The code base
 compiled and used in both analyses is slightly different (this explains the
@@ -385,14 +392,21 @@ that and the purpose of this analysis, we can ignore the missed patterns
 without causing any harm to the notion of how better RAP could be if it used
 CGD.
 
-
 ** References
 
-[1] - Martin Abadi, Mihai Budiu, Ulfar Erlingsson, and Jay Ligatti. 2005. Control-flow integrity. In Proceedings of the 12th ACM conference on Computer and communications security (CCS '05). ACM, New York, NY, USA, 340-353. DOI=http://dx.doi.org/10.1145/1102120.1102165
+[1] - Martin Abadi, Mihai Budiu, Ulfar Erlingsson, and Jay Ligatti. 2005.
+Control-flow integrity. In Proceedings of the 12th ACM conference on Computer
+and communications security (CCS '05). ACM, New York, NY, USA, 340-353.
+DOI=http://dx.doi.org/10.1145/1102120.1102165
 
-[2] - Nicolas Carlini, Antonio Barresi, Mathias Payer, David Wagner, and Thomas R. Gross. 2015. Control-flow bending: on the effectiveness of control-flow integrity. In Proceedings of the 24th USENIX Conference on Security Symposium (SEC'15), Jaeyeon Jung (Ed.). USENIX Association, Berkeley, CA, USA, 161-176.
+[2] - Nicolas Carlini, Antonio Barresi, Mathias Payer, David Wagner, and Thomas
+R. Gross. 2015. Control-flow bending: on the effectiveness of control-flow
+integrity. In Proceedings of the 24th USENIX Conference on Security Symposium
+(SEC'15), Jaeyeon Jung (Ed.). USENIX Association, Berkeley, CA, USA, 161-176.
 
 [3] - FAQ about RAP - https://grsecurity.net/rap_faq.php
+
+[4] - PaX Future, 2003 - https://grsecurity.net/docs/pax-future.txt
 
 ** Script 1: function_counter.lua
 
